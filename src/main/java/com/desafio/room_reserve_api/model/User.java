@@ -37,6 +37,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @NotBlank
     private Role role;
 
     @NotNull
