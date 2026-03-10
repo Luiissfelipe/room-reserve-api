@@ -51,6 +51,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado!"));
         user.updateUser(dto);
+        userRepository.save(user);
     }
 
     @Transactional
@@ -58,5 +59,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado!"));
         user.disableUser();
+        userRepository.save(user);
     }
 }
