@@ -1,5 +1,7 @@
 package com.desafio.room_reserve_api.model;
 
+import com.desafio.room_reserve_api.dto.room.CreateRoomDto;
+import com.desafio.room_reserve_api.dto.room.UpdateRoomDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,4 +48,21 @@ public class Room {
     @LastModifiedDate
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    public Room(CreateRoomDto dto) {
+        this.name = dto.name();
+        this.capacity = dto.capacity();
+        this.active = true;
+        this.location = dto.location();
+    }
+
+    public void updateRoom(UpdateRoomDto dto) {
+        this.name = dto.name();
+        this.capacity = dto.capacity();
+        this.location = dto.location();
+    }
+
+    public void disableRoom() {
+        this.active = false;
+    }
 }
