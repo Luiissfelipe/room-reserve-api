@@ -1,5 +1,7 @@
 package com.desafio.room_reserve_api.model;
 
+import com.desafio.room_reserve_api.dto.user.CreateUserDto;
+import com.desafio.room_reserve_api.dto.user.UpdateUserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -37,7 +39,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank
+    @NotNull
     private Role role;
 
     @NotNull
@@ -50,4 +52,22 @@ public class User {
     @LastModifiedDate
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    public User(CreateUserDto dto) {
+        this.name = dto.name();
+        this.email = dto.email();
+        this.password = dto.password();
+        this.role = Role.USER;
+        this.active = true;
+    }
+
+    public void updateUser(UpdateUserDto dto) {
+        this.name = dto.name();
+        this.email = dto.email();
+        this.password = dto.password();
+    }
+
+    public void disableUser() {
+        this.active = false;
+    }
 }
