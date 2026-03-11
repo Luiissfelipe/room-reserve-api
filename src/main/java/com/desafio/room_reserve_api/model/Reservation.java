@@ -1,5 +1,8 @@
 package com.desafio.room_reserve_api.model;
 
+import com.desafio.room_reserve_api.dto.reservation.CreateReservationDto;
+import com.desafio.room_reserve_api.dto.reservation.UpdateReservationDto;
+import com.desafio.room_reserve_api.exception.ValidationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +59,27 @@ public class Reservation {
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
+    public Reservation(CreateReservationDto dto, User user, Room room) {
+        this.purpose = dto.purpose();
+        this.startDate = dto.startDate();
+        this.endDate = dto.endDate();
+        if (!isPeriodValid()) {
+            throw new ValidationException("A data final deve ser posterior à data de inicio!");
+        }
+        this.reservationStatus = ReservationStatus.CONFIRMED;
+        this.user = user;
+        this.room = room;
+    }
+
+    public void updateReservation(UpdateReservationDto dto) {
+        this.purpose = dto.purpose();
+        this.startDate = dto.startDate();
+        this.endDate = dto.endDate();
+        if (!isPeriodValid()) {
+            throw new ValidationException("A data final deve ser posterior à data de inicio!");
+        }
+    }
+
     private boolean isPeriodValid() {
         return this.startDate.isBefore(this.endDate);
     }
@@ -66,9 +90,21 @@ public class Reservation {
         }
 
         if (LocalDateTime.now().isAfter(this.startDate) || LocalDateTime.now().isEqual(this.startDate)) {
-            throw new IllegalStateException("Não é possível cancelar uma reserva que já iniciou ou já passou.");
+            throw new ValidationException("Não é possível cancelar uma reserva que já iniciou ou já passou.");
         }
 
         this.reservationStatus = ReservationStatus.CANCELLED;
+    }
+
+    public void completed() {
+        if (this.reservationStatus == ReservationStatus.COMPLETED) {
+            return;
+        }
+
+        if (LocalDateTime.now().isBefore(this.endDate)) {
+            throw new ValidationException("Não é possível completar uma reserva que ainda não chegou na data final.");
+        }
+
+        this.reservationStatus = ReservationStatus.COMPLETED;
     }
 }
