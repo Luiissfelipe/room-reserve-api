@@ -12,6 +12,8 @@ import com.desafio.room_reserve_api.repository.ReservationRepository;
 import com.desafio.room_reserve_api.repository.RoomRepository;
 import com.desafio.room_reserve_api.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +31,10 @@ public class ReservationService {
         this.roomRepository = roomRepository;
     }
 
-    public List<ReservationDto> listReservations() {
+    public Page<ReservationDto> listReservations(Pageable pageable) {
         return reservationRepository
-                .findAllByReservationStatusNot(ReservationStatus.CANCELLED)
-                .stream()
-                .map(ReservationDto::new)
-                .toList();
+                .findAllByReservationStatusNot(ReservationStatus.CANCELLED, pageable)
+                .map(ReservationDto::new);
     }
 
     public ReservationDto listReservationById(Long id) {
@@ -44,6 +44,12 @@ public class ReservationService {
                 .orElseThrow(() -> new EntityNotFoundException("Reserva não encontrada!"));
     }
 
+    /**
+     * Anotado com @Transactional para garantir a atomicidade da operação.
+     * Isso assegura que a leitura (verificação de conflito) e a gravação (criação da reserva)
+     * ocorram dentro da mesma transação do banco de dados. Se a gravação falhar,
+     * toda a operação sofre rollback, prevenindo condições de corrida e inconsistência de dados
+     */
     @Transactional
     public void createReservation(CreateReservationDto dto) {
         User user = userRepository
