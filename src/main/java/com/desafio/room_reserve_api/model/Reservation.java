@@ -43,11 +43,20 @@ public class Reservation {
     @Column(name = "reservation_status", nullable = false)
     private ReservationStatus reservationStatus;
 
-    @ManyToOne
+    /**
+     * Usamos fetch = FetchType.LAZY para evitar o problema de N+1 queries.
+     * Os dados do usuário só serão buscados no banco se forem explicitamente requisitados,
+     * economizando memória e processamento.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    /**
+     * FetchType.LAZY garante que a consulta ao banco para trazer a sala
+     * ocorra apenas no momento em que chamarmos reservation.getRoom().
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
