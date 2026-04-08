@@ -95,7 +95,11 @@ public class Reservation {
 
     public void cancel() {
         if (this.reservationStatus == ReservationStatus.CANCELLED) {
-            return;
+            throw new ValidationException("Esta reserva já foi cancelada anteriormente.");
+        }
+
+        if (this.reservationStatus == ReservationStatus.COMPLETED) {
+            throw new ValidationException("Não é possível cancelar uma reserva que já foi finalizada.");
         }
 
         if (LocalDateTime.now().isAfter(this.startDate) || LocalDateTime.now().isEqual(this.startDate)) {
@@ -103,6 +107,7 @@ public class Reservation {
         }
 
         this.reservationStatus = ReservationStatus.CANCELLED;
+        this.updateDate = LocalDateTime.now();
     }
 
     public void completed() {
